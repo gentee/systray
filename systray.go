@@ -31,7 +31,7 @@ func init() {
 // Don't create it directly, use the one systray.AddMenuItem() returned
 type MenuItem struct {
 	// ClickedCh is the channel which will be notified when the menu item is clicked
-	ClickedCh chan struct{}
+	ClickedCh chan *MenuItem
 
 	// id uniquely identify a menu item, not supposed to be modified
 	id uint32
@@ -58,16 +58,7 @@ func (item *MenuItem) String() string {
 
 // newMenuItem returns a populated MenuItem object
 func newMenuItem(title string, tooltip string, parent *MenuItem) *MenuItem {
-	return &MenuItem{
-		ClickedCh:   make(chan struct{}),
-		id:          atomic.AddUint32(&currentID, 1),
-		title:       title,
-		tooltip:     tooltip,
-		disabled:    false,
-		checked:     false,
-		isCheckable: false,
-		parent:      parent,
-	}
+	return newMenuItemChan(title, tooltip, parent, nil)
 }
 
 // Run initializes GUI and starts the event loop, then invokes the onReady
@@ -228,7 +219,7 @@ func systrayMenuItemSelected(id uint32) {
 		return
 	}
 	select {
-	case item.ClickedCh <- struct{}{}:
+	case item.ClickedCh <- item:
 	// in case no one waiting for the channel
 	default:
 	}
