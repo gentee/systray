@@ -8,12 +8,11 @@ import (
 	"runtime"
 	"sync"
 	"sync/atomic"
-	//"github.com/getlantern/golog"
+
+	"github.com/kataras/golog"
 )
 
 var (
-	//log = golog.LoggerFor("systray")
-
 	systrayReady  func()
 	systrayExit   func()
 	menuItems     = make(map[uint32]*MenuItem)
@@ -215,7 +214,7 @@ func systrayMenuItemSelected(id uint32) {
 	item, ok := menuItems[id]
 	menuItemsLock.RUnlock()
 	if !ok {
-		//log.Errorf("No menu item with ID %v", id)
+		golog.Errorf("No menu item with ID %v", id)
 		return
 	}
 	select {
